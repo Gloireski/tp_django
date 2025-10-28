@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useProducts } from "../hooks/useProducts"
 import { useCategories } from "../hooks/useCategories"
+const BASE_URL = import.meta.env.VITE_API_URL;
 // import { fetchProducts } from "../services/api"
 
 // Sample product data
@@ -25,7 +26,7 @@ export default function Catalog() {
   if (isError) console.error("Error", isError)
 
   if (isLoading) return <p className="text-neon-yellow text-center">Loading products...</p>
-  if (isError) return <p className="text-red-500 text-center">Failed to load products 😢</p>
+  if (isError) return <p className="text-red-500 text-center">Failed to load products</p>
 
   // Filter logic
   const filteredProducts = products.filter((p) => {
@@ -35,17 +36,6 @@ export default function Catalog() {
     console.log(`Product: ${p.name}, matchesSearch: ${matchesSearch}, matchesCategory: ${matchesCategory}, matchesPrice: ${matchesPrice}`)
     return matchesSearch && matchesCategory && matchesPrice
   })
-
-  console.log(
-  products.map(p => ({
-    name: p.name,
-    category: p.category,
-    price: p.price,
-    matches: p.name.toLowerCase().includes(search.toLowerCase()) &&
-             (category === "All" || p.category.toLowerCase() === category.toLowerCase()) &&
-             Number(p.price) <= maxPrice
-  }))
-)
 
 
   return (
@@ -104,7 +94,7 @@ export default function Catalog() {
               <h3 className="text-2xl font-bold mb-2">{p.name}</h3>
               <p className="mb-2 text-neon-yellow">Category: {p.category}</p>
               <p className="mb-4 text-neon-green">${p.price}</p>
-              <img src={p.image} alt={p.name} className="mb-4 rounded-xl shadow-glow" />
+              <img src={`${BASE_URL}${p.image}`} alt={p.name} className="mb-4 rounded-xl shadow-glow" />
               <Link
                 to={`/product/${p.id}`}
                 className="px-4 py-2 bg-neon-purple text-black rounded-xl hover:opacity-80 transition"

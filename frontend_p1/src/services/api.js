@@ -16,12 +16,12 @@ export const fetchProducts = async (filters = {}) => {
   if (filters.maxPrice) params.append("max_price", filters.maxPrice);
 
   const { data } = await API.get("products/", { params });
-  return data;
+  return data.products;
 };
 // Fetch single product by ID
 export const fetchProductById = async (id) => {
   const { data } = await API.get(`products/${id}/`);
-  return data;
+  return data.product;
 };
 
 

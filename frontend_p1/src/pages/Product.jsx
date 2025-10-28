@@ -1,6 +1,7 @@
 import React from 'react';
 import { useProduct } from '../hooks/useProducts';
 import { useParams } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Product() {
   const { id } = useParams(); // URL: /product/:id
@@ -18,7 +19,7 @@ export default function Product() {
 
       {product.image && (
         <img
-          src={product.image}
+          src={`${BASE_URL}${product.image}`}
           alt={product.name}
           width={1000}
           height={1000}
