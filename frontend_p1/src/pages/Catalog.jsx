@@ -22,6 +22,7 @@ export default function Catalog() {
 
   console.log("Categories fetched:", categories);
   console.log("Products fetched:", products);
+  if (isError) console.error("Error", isError)
 
   if (isLoading) return <p className="text-neon-yellow text-center">Loading products...</p>
   if (isError) return <p className="text-red-500 text-center">Failed to load products 😢</p>

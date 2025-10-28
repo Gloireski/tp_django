@@ -1,15 +1,33 @@
 import axios from 'axios';
 
-const API = axios.create({
+export const API = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
   headers: {
     "Content-Type": "application/json",
   },
-})
+});
 
-// Products
-export const fetchProducts = () => API.get("products/")
-export const fetchProductById = (id) => API.get(`products/${id}/`)
+// Fetch products with optional filters
 
-// Optionally handle categories
-export const fetchCategories = () => API.get("categories/")
+export const fetchProducts = async (filters = {}) => {
+  const params = new URLSearchParams();
+  if (filters.search) params.append("search", filters.search);
+  if (filters.category && filters.category !== "All") params.append("category", filters.category);
+  if (filters.maxPrice) params.append("max_price", filters.maxPrice);
+
+  const { data } = await API.get("products/", { params });
+  return data;
+};
+// Fetch single product by ID
+export const fetchProductById = async (id) => {
+  const { data } = await API.get(`products/${id}/`);
+  return data;
+};
+
+
+// Categories
+export const fetchCategories = async () => {
+  const { data } = await API.get("categories/"); // Make sure this endpoint exists in Django
+  return data;
+};
+

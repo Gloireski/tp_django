@@ -1,31 +1,7 @@
 // hooks/useProducts.js
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { fetchProducts, fetchProductById } from "../services/api"
 
-const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Fetch products with optional filters
-const fetchProducts = async ({ queryKey }) => {
-  const [_key, filters] = queryKey;
-  const params = {};
-
-  if (filters?.search) params.search = filters.search;
-  if (filters?.category && filters.category !== "All") params.category = filters.category;
-  if (filters?.maxPrice) params.max_price = filters.maxPrice;
-
-  const { data } = await API.get("products/", { params });
-  return data;
-};
-// Fetch single product by ID
-const fetchProductById = async (id) => {
-  const { data } = await API.get(`products/${id}/`);
-  return data;
-};
 
 
 /**
@@ -35,7 +11,7 @@ const fetchProductById = async (id) => {
 export const useProducts = (filters = {}) => {
   return useQuery({
     queryKey: ["products", filters],
-    queryFn: fetchProducts,
+    queryFn: () => fetchProducts(filters),
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000, // 5 minutes cache
     refetchOnWindowFocus: false,
