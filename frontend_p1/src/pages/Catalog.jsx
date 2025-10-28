@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useProducts } from "../hooks/useProducts"
-import { fetchProducts } from "../services/api"
+import { useCategories } from "../hooks/useCategories"
+// import { fetchProducts } from "../services/api"
 
 // Sample product data
 // const products = [
@@ -13,25 +14,38 @@ import { fetchProducts } from "../services/api"
 // ]
 
 export default function Catalog() {
-//   const productsData = fetchProducts()
-//   console.log("Fetched products data:", productsData)
-  const { data: products = [], isLoading, isError } = useProducts()
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("All")
-  const [maxPrice, setMaxPrice] = useState(250)
+  const [maxPrice, setMaxPrice] = useState(10000)
+  const { data: products = [], isLoading, isError } = useProducts({ search, category, maxPrice });
+  const { data: categories = [] } = useCategories();
 
-  console.log("Products fetched:", products)
+  console.log("Categories fetched:", categories);
+  console.log("Products fetched:", products);
+
+  if (isLoading) return <p className="text-neon-yellow text-center">Loading products...</p>
+  if (isError) return <p className="text-red-500 text-center">Failed to load products 😢</p>
 
   // Filter logic
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
-    const matchesCategory = category === "All" || p.category === category
-    const matchesPrice = p.price <= maxPrice
+    const matchesCategory = category === "All" || p.category.toLowerCase() === category.toLowerCase()
+    const matchesPrice = Number(p.price) <= maxPrice
+    console.log(`Product: ${p.name}, matchesSearch: ${matchesSearch}, matchesCategory: ${matchesCategory}, matchesPrice: ${matchesPrice}`)
     return matchesSearch && matchesCategory && matchesPrice
   })
 
-  if (isLoading) return <p className="text-neon-yellow text-center">Loading products...</p>
-  if (isError) return <p className="text-red-500 text-center">Failed to load products 😢</p>
+  console.log(
+  products.map(p => ({
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    matches: p.name.toLowerCase().includes(search.toLowerCase()) &&
+             (category === "All" || p.category.toLowerCase() === category.toLowerCase()) &&
+             Number(p.price) <= maxPrice
+  }))
+)
+
 
   return (
     <div className="min-h-screen bg-black text-neon-green font-orbitron p-8">
@@ -55,18 +69,20 @@ export default function Catalog() {
           className="px-4 py-2 rounded-xl bg-black border border-neon-purple text-neon-yellow focus:outline-none focus:ring-2 focus:ring-neon-green w-full md:w-1/3"
         >
           <option value="All">All Categories</option>
-          <option value="Wearables">Wearables</option>
-          <option value="Accessories">Accessories</option>
-          <option value="Gear">Gear</option>
+            {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                {cat.name}
+                </option>
+            ))}
         </select>
-
+        
         {/* Price Range */}
         <div className="flex flex-col items-center w-full md:w-1/3">
           <label className="text-neon-yellow mb-1">Max Price: ${maxPrice}</label>
           <input
             type="range"
-            min="50"
-            max="250"
+            min="150"
+            max="10000"
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
             className="w-full accent-neon-purple"
@@ -76,7 +92,7 @@ export default function Catalog() {
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <p className="text-center text-neon-yellow text-xl mt-10">No products found 😢</p>
+        <p className="text-center text-neon-yellow text-xl mt-10">No products found 😢 (filter)</p>
       ) : (
         <div className="grid md:grid-cols-3 gap-8">
           {filteredProducts.map((p) => (
@@ -87,6 +103,7 @@ export default function Catalog() {
               <h3 className="text-2xl font-bold mb-2">{p.name}</h3>
               <p className="mb-2 text-neon-yellow">Category: {p.category}</p>
               <p className="mb-4 text-neon-green">${p.price}</p>
+              <img src={p.image} alt={p.name} className="mb-4 rounded-xl shadow-glow" />
               <Link
                 to={`/product/${p.id}`}
                 className="px-4 py-2 bg-neon-purple text-black rounded-xl hover:opacity-80 transition"
