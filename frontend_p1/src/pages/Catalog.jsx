@@ -1,19 +1,26 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { useProducts } from "../hooks/useProducts"
+import { fetchProducts } from "../services/api"
 
 // Sample product data
-const products = [
-  { id: 1, name: "Neon Jacket", category: "Wearables", price: 120, color: "neon-purple" },
-  { id: 2, name: "Cyber Goggles", category: "Accessories", price: 80, color: "neon-green" },
-  { id: 3, name: "LED Sneakers", category: "Wearables", price: 150, color: "neon-yellow" },
-  { id: 4, name: "Hologram Watch", category: "Accessories", price: 200, color: "neon-purple" },
-  { id: 5, name: "Neon Backpack", category: "Gear", price: 95, color: "neon-green" },
-]
+// const products = [
+//   { id: 1, name: "Neon Jacket", category: "Wearables", price: 120, color: "neon-purple" },
+//   { id: 2, name: "Cyber Goggles", category: "Accessories", price: 80, color: "neon-green" },
+//   { id: 3, name: "LED Sneakers", category: "Wearables", price: 150, color: "neon-yellow" },
+//   { id: 4, name: "Hologram Watch", category: "Accessories", price: 200, color: "neon-purple" },
+//   { id: 5, name: "Neon Backpack", category: "Gear", price: 95, color: "neon-green" },
+// ]
 
 export default function Catalog() {
+//   const productsData = fetchProducts()
+//   console.log("Fetched products data:", productsData)
+  const { data: products = [], isLoading, isError } = useProducts()
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("All")
   const [maxPrice, setMaxPrice] = useState(250)
+
+  console.log("Products fetched:", products)
 
   // Filter logic
   const filteredProducts = products.filter((p) => {
@@ -22,6 +29,9 @@ export default function Catalog() {
     const matchesPrice = p.price <= maxPrice
     return matchesSearch && matchesCategory && matchesPrice
   })
+
+  if (isLoading) return <p className="text-neon-yellow text-center">Loading products...</p>
+  if (isError) return <p className="text-red-500 text-center">Failed to load products 😢</p>
 
   return (
     <div className="min-h-screen bg-black text-neon-green font-orbitron p-8">
